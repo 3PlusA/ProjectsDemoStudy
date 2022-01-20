@@ -35,7 +35,7 @@
       <el-pagination
           v-model:currentPage="currentPage"
           :page-sizes="[5, 10, 20]"
-          :page-size="10"
+          :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
           @size-change="handleSizeChange"
@@ -66,7 +66,7 @@
         <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确认</el-button>
+        <el-button type="primary" @click="save">确认</el-button>
       </span>
         </template>
       </el-dialog>
@@ -75,6 +75,8 @@
 </template>
 
 <script>
+
+import request from "@/utils/request";
 
 export default {
   name: 'Home',
@@ -86,17 +88,38 @@ export default {
       dialogVisible: false,
       search: '',
       currentPage: 1,
+      pageSize:10,
       total: 10,
       tableData: [],
     }
   },
+
+  created() {
+    this.load()
+  },
+
   methods:{
+    load(){
+      request.get("/user",{
+        pageNum:this.currentPage,
+        pageSize:this.pageSize,
+        search:this.search
+      }).then(res=>{
+        console.log(res)
+        this.tableData=res.data.records//打印数据到表格
+        this.total=res.data.total
+      })
+    },
+    //增加用户弹窗
     add(){
       this.dialogVisible = true
       this.form = {}//清空新增表单
     },
+    //增加用户相应
     save(){
-      
+      request.post("/user",this.form).then(res => {
+        console.log(res)
+      })
     },
     handleClick(){
 
