@@ -1,0 +1,113 @@
+<template>
+  <div style="padding:10px">
+    <!--    功能区-->
+    <div style="margin:10px">
+      <el-button type="primary" @click="add">新增</el-button>
+      <el-button type="primary">导入</el-button>
+      <el-button type="primary">导出</el-button>
+    </div>
+
+    <!--    搜索区-->
+    <div style="margin:10px">
+      <el-input v-model="search" placeholder="请输入关键字" style="width:20%"/>
+      <el-button type="primary" style="margin-left:5px">查询</el-button>
+    </div>
+    <el-table :data="tableData" border stripe style="width:100%">
+      <el-table-column fixed prop="id" label="ID" width="100" align="center"/>
+      <el-table-column prop="username" label="用户名" width="150" align="center"/>
+      <el-table-column prop="nickName" label="昵称" width="180" align="center"/>
+      <el-table-column prop="age" label="年龄" width="50" align="center"/>
+      <el-table-column prop="sex" label="性别" width="50" align="center"/>
+      <el-table-column prop="address" label="地址" width="385" align="center"/>
+      <el-table-column fixed="right" label="操作" width="130" align="center">
+        <template #default>
+          <el-button size="small" @click="handleClick">编辑</el-button>
+          <el-popconfirm title="确认删除吗?">
+            <template #reference>
+              <el-button size="small" type="danger">删除</el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <div style="margin:10px 0">
+      <el-pagination
+          v-model:currentPage="currentPage"
+          :page-sizes="[5, 10, 20]"
+          :page-size="10"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange">
+      </el-pagination>
+
+      <!--新增的表单弹窗-->
+      <el-dialog v-model="dialogVisible" title="新增用户" width="30%">
+        <el-form :model="form" label-width="120px">
+          <el-form-item label="用户名">
+            <el-input v-model="form.username" style="width: 80%"></el-input>
+          </el-form-item>
+          <el-form-item label="昵称">
+            <el-input v-model="form.nickName" style="width: 80%"></el-input>
+          </el-form-item>
+          <el-form-item label="年龄">
+            <el-input v-model="form.age" style="width: 80%"></el-input>
+          </el-form-item>
+          <el-form-item label="性别">
+            <el-radio v-model="form.sex" label="1" size="small">男</el-radio>
+            <el-radio v-model="form.sex" label="2" size="small">女</el-radio>
+            <el-radio v-model="form.sex" label="3" size="small">未知</el-radio>
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input v-model="form.address" type="textarea" style="width: 80%"></el-input>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确认</el-button>
+      </span>
+        </template>
+      </el-dialog>
+    </div>
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: 'Home',
+  components: {},
+  data() {
+    return {
+      form: {},
+      // 弹窗默认关闭
+      dialogVisible: false,
+      search: '',
+      currentPage: 1,
+      total: 10,
+      tableData: [],
+    }
+  },
+  methods:{
+    add(){
+      this.dialogVisible = true
+      this.form = {}//清空新增表单
+    },
+    save(){
+      
+    },
+    handleClick(){
+
+    },
+    handleSizeChange(){
+
+    },
+    handleCurrentChange(){
+
+    }
+
+  }
+}
+</script>
