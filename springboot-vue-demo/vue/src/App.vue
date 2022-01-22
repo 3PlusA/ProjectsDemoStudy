@@ -1,4 +1,9 @@
+body{
+margin:0;
+padding:0;
+}
 <template>
+
   <div id="nav">
 <!--    头-->
     <Header />
@@ -10,7 +15,7 @@
       <Aside />
 
 <!--      内容区域-->
-      <router-view style="flex:1"/>
+      <router-view style="flex:0.9"/>
     </div>
 
   </div>

@@ -9,20 +9,20 @@
 
     <!--    搜索区-->
     <div style="margin:10px">
-      <el-input v-model="search" placeholder="请输入关键字" style="width:20%"/>
-      <el-button type="primary" style="margin-left:5px">查询</el-button>
+      <el-input v-model="search" placeholder="请输入关键字" style="width:20%" clearable/>
+      <el-button type="primary" style="margin-left:5px" @click="load">查询</el-button>
     </div>
     <el-table :data="tableData" border stripe style="width:100%">
-      <el-table-column fixed prop="id" label="ID" width="100" align="center"/>
-      <el-table-column prop="username" label="用户名" width="150" align="center"/>
-      <el-table-column prop="nickName" label="昵称" width="180" align="center"/>
-      <el-table-column prop="age" label="年龄" width="50" align="center"/>
-      <el-table-column prop="sex" label="性别" width="50" align="center"/>
-      <el-table-column prop="address" label="地址" width="385" align="center"/>
+      <el-table-column fixed prop="id" label="ID" align="center"/>
+      <el-table-column prop="username" label="用户名" align="center"/>
+      <el-table-column prop="nickName" label="昵称" align="center"/>
+      <el-table-column prop="age" label="年龄" align="center"/>
+      <el-table-column prop="sex" label="性别" align="center"/>
+      <el-table-column prop="address" label="地址" align="center"/>
       <el-table-column fixed="right" label="操作" width="130" align="center">
-        <template #default>
-          <el-button size="small" @click="handleClick">编辑</el-button>
-          <el-popconfirm title="确认删除吗?">
+        <template #default="scope">
+          <el-button size="small" @click="handleClick(scope.raw)">编辑</el-button>
+          <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)">
             <template #reference>
               <el-button size="small" type="danger">删除</el-button>
             </template>
@@ -31,6 +31,7 @@
       </el-table-column>
     </el-table>
 
+    <!--    页数展示区-->
     <div style="margin:10px 0">
       <el-pagination
           v-model:currentPage="currentPage"
@@ -55,9 +56,9 @@
             <el-input v-model="form.age" style="width: 80%"></el-input>
           </el-form-item>
           <el-form-item label="性别">
-            <el-radio v-model="form.sex" label="1" size="small">男</el-radio>
-            <el-radio v-model="form.sex" label="2" size="small">女</el-radio>
-            <el-radio v-model="form.sex" label="3" size="small">未知</el-radio>
+            <el-radio v-model="form.sex" label="男" size="small">男</el-radio>
+            <el-radio v-model="form.sex" label="女" size="small">女</el-radio>
+            <el-radio v-model="form.sex" label="未知" size="small">未知</el-radio>
           </el-form-item>
           <el-form-item label="地址">
             <el-input v-model="form.address" type="textarea" style="width: 80%"></el-input>
@@ -88,7 +89,7 @@ export default {
       dialogVisible: false,
       search: '',
       currentPage: 1,
-      pageSize:10,
+      pageSize: 10,
       total: 10,
       tableData: [],
     }
@@ -98,37 +99,103 @@ export default {
     this.load()
   },
 
-  methods:{
-    load(){
-      request.get("/user",{
-        pageNum:this.currentPage,
-        pageSize:this.pageSize,
-        search:this.search
-      }).then(res=>{
+  methods: {
+    load() {
+      request.get("/user", {
+        params: {
+          pageNum: this.currentPage,
+          pageSize: this.pageSize,
+          search: this.search
+        }
+      }).then(res => {
         console.log(res)
-        this.tableData=res.data.records//打印数据到表格
-        this.total=res.data.total
+        this.tableData = res.data.records//打印数据到表格
+        this.total = res.data.total
       })
     },
+
     //增加用户弹窗
-    add(){
+    add() {
       this.dialogVisible = true
       this.form = {}//清空新增表单
     },
-    //增加用户相应
-    save(){
-      request.post("/user",this.form).then(res => {
+
+    //增加用户保存
+    save() {
+      if (this.form.id) {//更新
+        request.put("/user", this.form).then(res => {
+          console.log(res)
+          //判断是否添加成功，返回为0代表添加成功
+          if(res.code==='0'){
+            this.$message({
+              type: "success",
+              message: "更新成功！"
+            })
+          }else{
+            this.$message({
+              type: "error",
+              message: res.msg
+            })
+          }
+          this.load()//刷新表格数据
+          this.dialogVisible = false
+        })
+      } else {//新增
+        request.post("/user", this.form).then(res => {
+          console.log(res)
+          if(res.code==='0'){
+            this.$message({
+              type: "success",
+              message: "新增成功！"
+            })
+          }else{
+            this.$message({
+              type: "error",
+              message: res.msg
+            })
+          }
+          this.load()//刷新表格数据
+          this.dialogVisible = false
+        })
+      }
+
+
+    },
+
+    handleClick(row) {
+      this.form = JSON.parse(JSON.stringify(row))
+      this.dialogVisible(true)
+    },
+
+    //改变每页个数
+    handleSizeChange(pageSize) {
+      this.pageSize = pageSize
+      this.load()
+    },
+
+    //改变当前页码
+    handleCurrentChange(pageNum) {
+      this.currentPage = pageNum
+      this.load()
+    },
+
+    //删除
+    handleDelete(id){
+      request.delete("/user/"+id).then(res=>{
         console.log(res)
+        if(res.code==='0'){
+          this.$message({
+            type: "success",
+            message: "删除成功！"
+          })
+        }else{
+          this.$message({
+            type: "error",
+            message: res.msg
+          })
+        }
+        this.load()//刷新表格数据
       })
-    },
-    handleClick(){
-
-    },
-    handleSizeChange(){
-
-    },
-    handleCurrentChange(){
-
     }
 
   }

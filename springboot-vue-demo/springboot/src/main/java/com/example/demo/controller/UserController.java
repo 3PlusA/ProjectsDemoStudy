@@ -27,6 +27,18 @@ public class UserController {
         return Result.success();
     }
 
+    @PutMapping//put接口,更新
+    public Result<?> update(@RequestBody User user){//RequestBody：json对象转化成转换成JAVA实体
+        userMapper.updateById(user);
+        return Result.success();
+    }
+
+    @DeleteMapping("/{id}")//put接口,更新
+    public Result<?> delete(@PathVariable Long id){//RequestBody：json对象转化成转换成JAVA实体
+        userMapper.deleteById(id);
+        return Result.success();
+    }
+
     @GetMapping//get接口,获取数据库数据
     public Result<?> findPage(@RequestParam(defaultValue = "1") Integer pageNum,
                               @RequestParam(defaultValue = "10") Integer pageSize,
